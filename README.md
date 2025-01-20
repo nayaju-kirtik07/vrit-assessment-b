@@ -67,6 +67,10 @@ A simple, interactive Kanban board built with React and TypeScript.
 
 ---
 
-## Contributing
+## Recording
+https://github.com/user-attachments/assets/eac0f47c-7858-4787-8252-f0dda7455b19
 
+
+
+## Contributing
 Contributions are welcome! Feel free to submit a Pull Request.
