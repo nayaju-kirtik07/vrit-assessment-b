@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./KanbanBoard.css";
+import "./Kanban.css";
 
 // Define types
 type Task = {
@@ -22,12 +22,10 @@ const KanbanBoard: React.FC = () => {
   const [newColumnTitle, setNewColumnTitle] = useState<string>("");
   const [newTasks, setNewTasks] = useState<Record<string, string>>({});
 
-  // Save columns to local storage whenever they change
   useEffect(() => {
     localStorage.setItem("kanban-columns", JSON.stringify(columns));
   }, [columns]);
 
-  // Add a new column
   const handleAddColumn = (): void => {
     if (!newColumnTitle.trim()) return;
     const columnId = Date.now().toString();
@@ -38,7 +36,6 @@ const KanbanBoard: React.FC = () => {
     setNewColumnTitle("");
   };
 
-  // Delete a column
   const handleDeleteColumn = (columnId: string): void => {
     setColumns((prev) => {
       const updatedColumns = { ...prev };
@@ -47,7 +44,6 @@ const KanbanBoard: React.FC = () => {
     });
   };
 
-  // Add a new task to a column
   const handleAddTask = (columnId: string): void => {
     const taskContent = newTasks[columnId]?.trim();
     if (!taskContent) return;
@@ -63,7 +59,6 @@ const KanbanBoard: React.FC = () => {
     setNewTasks((prev) => ({ ...prev, [columnId]: "" }));
   };
 
-  // Delete a task from a column
   const handleDeleteTask = (columnId: string, taskId: string): void => {
     setColumns((prev) => ({
       ...prev,
@@ -74,7 +69,6 @@ const KanbanBoard: React.FC = () => {
     }));
   };
 
-  // Handle drag start
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     taskId: string,
@@ -84,7 +78,6 @@ const KanbanBoard: React.FC = () => {
     e.dataTransfer.setData("columnId", columnId);
   };
 
-  // Handle drop
   const handleDrop = (
     e: React.DragEvent<HTMLDivElement>,
     targetColumnId: string
@@ -122,65 +115,70 @@ const KanbanBoard: React.FC = () => {
           value={newColumnTitle}
           onChange={(e) => setNewColumnTitle(e.target.value)}
         />
-        <button className="add-column-button" onClick={handleAddColumn}>
+        <button type="button" className="add-column-button" onClick={handleAddColumn}>
           Add Column
         </button>
       </div>
 
       <div className="columns">
-        {Object.entries(columns).map(([columnId, column]) => (
-          <div
-            key={columnId}
-            className="column"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => handleDrop(e, columnId)}
-          >
-            <div className="column-header">
-              <h3>{column.title}</h3>
-              <button
-                className="delete-column-button"
-                onClick={() => handleDeleteColumn(columnId)}
-              >
-                Delete
-              </button>
-            </div>
-            <div className="tasks">
-              {column.tasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="task"
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, task.id, columnId)}
+        {(Object.entries(columns) as [string, Column][]).map(
+          ([columnId, column]) => (
+            <div
+              key={columnId}
+              className="column"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => handleDrop(e, columnId)}
+            >
+              <div className="column-header">
+                <h3>{column.title}</h3>
+                <button type="button"
+                  className="delete-column-button"
+                  onClick={() => handleDeleteColumn(columnId)}
                 >
-                  {task.content}
-                  <button
-                    className="delete-task-button"
-                    onClick={() => handleDeleteTask(columnId, task.id)}
+                  Delete
+                </button>
+              </div>
+              <div className="tasks">
+                {column.tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="task"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, task.id, columnId)}
                   >
-                    X
-                  </button>
-                </div>
-              ))}
+                    {task.content}
+                    <button type="button"
+                      className="delete-task-button"
+                      onClick={() => handleDeleteTask(columnId, task.id)}
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="add-task-container">
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter task"
+                  value={newTasks[columnId] || ""}
+                  onChange={(e) =>
+                    setNewTasks((prev) => ({
+                      ...prev,
+                      [columnId]: e.target.value,
+                    }))
+                  }
+                />
+                <button type="button"
+                  className="add-task-button"
+                  onClick={() => handleAddTask(columnId)}
+                >
+                  Add Task
+                </button>
+              </div>
             </div>
-            <div className="add-task-container">
-              <input
-                type="text"
-                className="input-field"
-                placeholder="Enter task"
-                value={newTasks[columnId] || ""}
-                onChange={(e) =>
-                  setNewTasks((prev) => ({ ...prev, [columnId]: e.target.value }))
-                }
-              />
-              <button
-                className="add-task-button"
-                onClick={() => handleAddTask(columnId)}
-              >
-                Add Task
-              </button>
-            </div>
-          </div>
-        ))}
+          )
+        )}
       </div>
     </div>
   );
